@@ -62,6 +62,10 @@ function AppNavigator() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="workout/[id]" options={{ title: t('workout.title') }} />
         <Stack.Screen name="exercise/[id]" options={{ title: t('exercise.title') }} />
+        <Stack.Screen
+          name="exercise/new"
+          options={{ title: t('exercises.form.title'), presentation: 'modal' }}
+        />
       </Stack>
     </ThemeProvider>
   );

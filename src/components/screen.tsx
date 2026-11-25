@@ -11,6 +11,7 @@ export function Screen({ children }: { children: ReactNode }) {
     <ScrollView
       style={{ backgroundColor: colors.background }}
       contentInsetAdjustmentBehavior="automatic"
+      keyboardShouldPersistTaps="handled"
       contentContainerStyle={styles.content}>
       {children}
     </ScrollView>

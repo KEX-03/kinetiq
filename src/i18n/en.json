@@ -53,6 +53,51 @@
   "exercise": {
     "title": "Exercise",
     "chart": "Progress",
-    "prs": "Personal records"
+    "prs": "Personal records",
+    "notFound": "This exercise no longer exists.",
+    "comingSoon": "Coming soon"
+  },
+  "exercises": {
+    "searchPlaceholder": "Search exercises",
+    "all": "All",
+    "new": "+ New",
+    "createCustom": "Create custom exercise",
+    "createNamed": "Create “{{name}}”",
+    "noResults": "No exercises match.",
+    "loadError": "Couldn't load exercises. Please restart the app.",
+    "customBadge": "Custom",
+    "form": {
+      "title": "New exercise",
+      "name": "Name",
+      "namePlaceholder": "e.g. Landmine Press",
+      "muscleGroup": "Muscle group",
+      "equipment": "Equipment",
+      "save": "Save exercise",
+      "nameRequired": "Please enter a name.",
+      "muscleRequired": "Please choose a muscle group.",
+      "equipmentRequired": "Please choose the equipment.",
+      "duplicate": "“{{name}}” already exists. Search for it instead.",
+      "saveError": "Couldn't save the exercise. Please try again."
+    }
+  },
+  "muscleGroups": {
+    "chest": "Chest",
+    "back": "Back",
+    "shoulders": "Shoulders",
+    "biceps": "Biceps",
+    "triceps": "Triceps",
+    "quads": "Quads",
+    "hamstrings": "Hamstrings",
+    "glutes": "Glutes",
+    "calves": "Calves",
+    "core": "Core"
+  },
+  "equipment": {
+    "barbell": "Barbell",
+    "dumbbell": "Dumbbell",
+    "machine": "Machine",
+    "cable": "Cable",
+    "bodyweight": "Bodyweight",
+    "other": "Other"
   }
 }

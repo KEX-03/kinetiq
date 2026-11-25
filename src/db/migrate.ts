@@ -1,4 +1,5 @@
 import { db } from './client';
+import { seedExercisesIfEmpty } from './seed';
 
 /**
  * Ordered schema migrations. Never edit an entry that has shipped; append a new one.
@@ -84,11 +85,13 @@ async function runMigrations(): Promise<void> {
       await txn.execAsync(`PRAGMA user_version = ${version + 1}`);
     });
   }
+
+  await seedExercisesIfEmpty(db);
 }
 
 let migration: Promise<void> | null = null;
 
-/** Brings the database schema up to date. Safe to call more than once. */
+/** Brings the database schema up to date and seeds built-in data. Safe to call more than once. */
 export function migrate(): Promise<void> {
   migration ??= runMigrations().catch((error: unknown) => {
     migration = null; // allow a retry
