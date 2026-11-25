@@ -75,6 +75,7 @@ function AppNavigator() {
           options={{ title: t('workout.addExercise'), presentation: 'modal', headerShown: false }}
         />
         <Stack.Screen name="exercise/[id]" options={{ title: t('exercise.title') }} />
+        <Stack.Screen name="body-weight" options={{ title: t('bodyWeight.title') }} />
         <Stack.Screen
           name="exercise/new"
           options={{ title: t('exercises.form.title'), presentation: 'modal' }}

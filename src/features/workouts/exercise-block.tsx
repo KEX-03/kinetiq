@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -8,6 +8,8 @@ import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { NumberInput } from '@/components/number-input';
 import { useThemeColors } from '@/components/theme';
+import { celebratePr } from '@/features/progress/celebrate';
+import { findPrs, type PrKind } from '@/features/progress/records';
 import { useSettings } from '@/features/settings/settings-provider';
 import { useRestTimer } from '@/features/timer/rest-timer-provider';
 import { displayWeight, parseDecimal, toKg, weightStep, type WeightUnit } from '@/utils/units';
@@ -39,6 +41,8 @@ type ExerciseBlockProps = {
 };
 
 type Mode = { kind: 'new' } | { kind: 'edit'; set: WorkoutSet; index: number };
+
+const CELEBRATION_MS = 5000;
 
 /** Values to pre-fill for set number `index`: last time's matching set, else this workout's last set. */
 function prefillFor(item: WorkoutExercise, index: number): PreviousSet | undefined {
@@ -72,6 +76,14 @@ export function ExerciseBlock({
   const [repsText, setRepsText] = useState(initial ? String(initial.reps) : '');
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  /** Records broken by the set just logged; shown briefly as a banner. */
+  const [newPrs, setNewPrs] = useState<PrKind[]>([]);
+
+  useEffect(() => {
+    if (newPrs.length === 0) return;
+    const timeout = setTimeout(() => setNewPrs([]), CELEBRATION_MS);
+    return () => clearTimeout(timeout);
+  }, [newPrs]);
 
   function fill(values: PreviousSet | undefined) {
     if (!values) return;
@@ -116,9 +128,16 @@ export function ExerciseBlock({
   function log() {
     const values = readInputs();
     if (!values) return;
+    // Same check the screen uses for badges, so the celebration always matches the badge.
+    const brokenRecords = findPrs(item.history, [...item.sets, values]).at(-1) ?? [];
     run(async () => {
       await logSet(workoutId, item.exercise.id, values.weightKg, values.reps);
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      if (brokenRecords.length > 0) {
+        celebratePr();
+        setNewPrs(brokenRecords);
+      } else {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      }
       startRest(settings.restSeconds);
       // Next set: pre-fill with last time's matching set, or keep what was just logged.
       fill(item.previous[item.sets.length + 1]);
@@ -241,11 +260,29 @@ export function ExerciseBlock({
               <Text style={[styles.colWide, styles.cell, { color: colors.textSecondary }]}>
                 {formatSet(item.previous[index])}
               </Text>
-              <Text style={[styles.colWide, styles.cell, styles.bold, { color: colors.text }]}>
-                {formatSet(set)}
-              </Text>
+              <View style={[styles.colWide, styles.resultCell]}>
+                <Text style={[styles.cell, styles.bold, { color: colors.text }]}>{formatSet(set)}</Text>
+                {item.prsBySetId[set.id]?.length ? (
+                  <Text
+                    accessibilityLabel={t('pr.badgeLabel')}
+                    style={[styles.prBadge, { color: colors.pr, backgroundColor: colors.prFill }]}>
+                    {t('pr.badge')}
+                  </Text>
+                ) : null}
+              </View>
             </Pressable>
           ))}
+        </View>
+      ) : null}
+
+      {newPrs.length > 0 ? (
+        <View
+          accessibilityRole="alert"
+          style={[styles.celebration, { backgroundColor: colors.prFill }]}>
+          <Text style={[styles.celebrationTitle, { color: colors.pr }]}>{t('pr.newTitle')}</Text>
+          <Text style={[styles.celebrationText, { color: colors.text }]}>
+            {newPrs.map((kind) => t(`pr.kinds.${kind}`)).join(' · ')}
+          </Text>
         </View>
       ) : null}
 
@@ -331,6 +368,18 @@ const styles = StyleSheet.create({
   headerCell: { fontSize: 13, fontWeight: '600', paddingBottom: 4 },
   cell: { fontSize: 17, fontVariant: ['tabular-nums'] },
   bold: { fontWeight: '600' },
+  resultCell: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  prBadge: {
+    fontSize: 11,
+    fontWeight: '800',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  celebration: { padding: 12, borderRadius: 12, borderCurve: 'continuous', gap: 2 },
+  celebrationTitle: { fontSize: 17, fontWeight: '800' },
+  celebrationText: { fontSize: 15, fontWeight: '500' },
   entry: { gap: 12, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth },
   entryHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 },
   entryTitle: { fontSize: 17, fontWeight: '700' },

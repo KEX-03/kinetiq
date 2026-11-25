@@ -9,6 +9,9 @@ const light = {
   onTint: '#FFFFFF',
   fill: 'rgba(120,120,128,0.16)',
   danger: '#FF3B30',
+  /** Personal-record highlights. */
+  pr: '#C98A00',
+  prFill: 'rgba(255,184,0,0.18)',
 };
 
 const dark: typeof light = {
@@ -20,6 +23,8 @@ const dark: typeof light = {
   onTint: '#FFFFFF',
   fill: 'rgba(120,120,128,0.32)',
   danger: '#FF453A',
+  pr: '#FFC933',
+  prFill: 'rgba(255,201,51,0.18)',
 };
 
 /**

@@ -1,5 +1,5 @@
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
@@ -30,6 +30,8 @@ type ExercisePickerProps = {
   topEdges?: Edge[];
   /** Use raised-surface colors (lighter in dark mode), for when shown as a modal sheet. */
   elevated?: boolean;
+  /** Content that scrolls above the exercise list (e.g. a link to body weight). */
+  listHeader?: ReactElement;
   onSelect: (exercise: Exercise) => void;
   /** Called when the user wants a custom exercise; prefilled from the current search and filter. */
   onCreate: (prefill: CreatePrefill) => void;
@@ -40,6 +42,7 @@ export function ExercisePicker({
   title,
   topEdges = ['top'],
   elevated = false,
+  listHeader,
   onSelect,
   onCreate,
 }: ExercisePickerProps) {
@@ -122,6 +125,7 @@ export function ExercisePicker({
           <ExerciseRow exercise={item} elevated={elevated} onPress={() => onSelect(item)} />
         )}
         ItemSeparatorComponent={Separator}
+        ListHeaderComponent={listHeader}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         contentInsetAdjustmentBehavior="automatic"

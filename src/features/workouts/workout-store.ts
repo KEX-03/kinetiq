@@ -1,5 +1,7 @@
 import { db, newId } from '@/db/client';
 import { toExercise, type Exercise, type ExerciseRow } from '@/features/exercises/exercise-store';
+import { loadHistoryBefore } from '@/features/progress/progress-store';
+import { findPrs, type ExerciseHistory, type PrKind } from '@/features/progress/records';
 
 export const MAX_WEIGHT_KG = 1000;
 export const MAX_REPS = 999;
@@ -21,6 +23,10 @@ export type WorkoutExercise = {
   sets: WorkoutSet[];
   /** Sets from the most recent earlier workout that included this exercise. */
   previous: PreviousSet[];
+  /** Bests from earlier workouts, used to spot new PRs. */
+  history: ExerciseHistory;
+  /** Records each set broke, by set id. Recomputed on every load so edits stay correct. */
+  prsBySetId: Record<string, PrKind[]>;
 };
 
 export type WorkoutDetail = {
@@ -122,11 +128,16 @@ export async function loadWorkout(id: string): Promise<WorkoutDetail | null> {
 
   const exercises: WorkoutExercise[] = [];
   for (const row of exerciseRows) {
+    const exerciseSets = sets.filter((set) => set.exerciseId === row.id);
+    const history = await loadHistoryBefore(row.id, workout.started_at);
+    const prs = findPrs(history, exerciseSets);
     exercises.push({
       id: row.workout_exercise_id,
       exercise: toExercise(row),
-      sets: sets.filter((set) => set.exerciseId === row.id),
+      sets: exerciseSets,
       previous: await getPreviousSets(row.id, workout.started_at),
+      history,
+      prsBySetId: Object.fromEntries(exerciseSets.map((set, index) => [set.id, prs[index]])),
     });
   }
 

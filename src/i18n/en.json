@@ -37,7 +37,61 @@
     "volume": "{{volume}} {{unit}}"
   },
   "progress": {
-    "title": "Progress"
+    "title": "Progress",
+    "estimatedMax": "Estimated 1RM",
+    "mostReps": "Most reps in a set",
+    "noData": "Log this exercise in a workout to start tracking progress.",
+    "needTwo": "Log this exercise in one more workout to see your trend.",
+    "changeWeight": "{{signed}} {{unit}}",
+    "changeReps_one": "{{signed}} rep",
+    "changeReps_other": "{{signed}} reps",
+    "since": "{{change}} since {{date}}",
+    "e1rmExplainer": "Best estimated one-rep max in each workout (Epley formula).",
+    "repsExplainer": "Most reps in a single set in each workout."
+  },
+  "records": {
+    "title": "Personal records",
+    "none": "No sets logged yet.",
+    "from": "{{set}} · {{date}}",
+    "repRecords": "Most reps at each weight",
+    "bodyweightOnly": "Bodyweight",
+    "reps_one": "{{count}} rep",
+    "reps_other": "{{count}} reps"
+  },
+  "pr": {
+    "badge": "PR",
+    "badgeLabel": "Personal record",
+    "newTitle": "New personal record!",
+    "kinds": {
+      "weight": "Heaviest weight",
+      "e1rm": "Best estimated 1RM",
+      "reps": "Most reps at this weight",
+      "volume": "Best session volume"
+    }
+  },
+  "bodyWeight": {
+    "title": "Body weight",
+    "empty": "Tap to log your first weigh-in",
+    "latest": "{{value}} · {{date}}",
+    "today": "Today",
+    "logged": "Logged: {{value}}",
+    "notLogged": "Not logged yet.",
+    "previousDay": "Previous day",
+    "nextDay": "Next day",
+    "save": "Save weight",
+    "update": "Update weight",
+    "decrease": "Decrease weight",
+    "increase": "Increase weight",
+    "invalid": "Enter a weight between {{min}} and {{max}} {{unit}}.",
+    "saveError": "Couldn't save your weight",
+    "loadError": "Couldn't load your weight history",
+    "trend": "Trend",
+    "daily": "Daily",
+    "average": "7-day average",
+    "needTwo": "Log your weight on two different days to see a chart.",
+    "recent": "Recent entries",
+    "tapToDelete": "Tap an entry to delete it.",
+    "deleteTitle": "Delete this entry?"
   },
   "settings": {
     "weightUnit": "Weight unit",
