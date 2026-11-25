@@ -54,3 +54,10 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## License
+
+The source code is released under the [MIT License](LICENSE).
+
+The name "Kinetiq" and its logo are not covered by the license. Forks and
+redistributed versions must use a different name and logo.

@@ -1,8 +1,8 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet } from 'react-native';
 
 import { Card } from '@/components/card';
+import { Screen } from '@/components/screen';
 
 /** Exercise detail: progress chart and personal records. */
 export default function ExerciseScreen() {
@@ -10,14 +10,10 @@ export default function ExerciseScreen() {
   const { t } = useTranslation();
 
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.content}>
+    <Screen>
       <Card title={t('exercise.title')} subtitle={`#${id}`} />
       <Card title={t('exercise.chart')} />
       <Card title={t('exercise.prs')} />
-    </ScrollView>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  content: { padding: 16, gap: 16 },
-});

@@ -1,40 +1,44 @@
 import { Pressable, StyleSheet, Text, type PressableProps } from 'react-native';
 
+import { useThemeColors } from './theme';
+
 type ButtonProps = Omit<PressableProps, 'children'> & {
   title: string;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'destructive';
 };
 
-export function Button({ title, variant = 'primary', style, ...rest }: ButtonProps) {
+export function Button({ title, variant = 'primary', style, disabled, ...rest }: ButtonProps) {
+  const colors = useThemeColors();
+  const background = variant === 'primary' ? colors.tint : colors.fill;
+  const labelColor =
+    variant === 'primary' ? colors.onTint : variant === 'destructive' ? colors.danger : colors.tint;
+
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled: !!disabled }}
+      disabled={disabled}
       style={(state) => [
         styles.base,
-        variant === 'primary' ? styles.primary : styles.secondary,
-        state.pressed && styles.pressed,
+        { backgroundColor: background },
+        (state.pressed || disabled) && styles.dimmed,
         typeof style === 'function' ? style(state) : style,
       ]}
       {...rest}>
-      <Text style={[styles.label, variant === 'primary' ? styles.primaryLabel : styles.secondaryLabel]}>
-        {title}
-      </Text>
+      <Text style={[styles.label, { color: labelColor }]}>{title}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 48,
+    minHeight: 52,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 14,
+    borderCurve: 'continuous',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  primary: { backgroundColor: '#208AEF' },
-  secondary: { backgroundColor: 'rgba(120,120,128,0.16)' },
-  pressed: { opacity: 0.7 },
+  dimmed: { opacity: 0.6 },
   label: { fontSize: 17, fontWeight: '600' },
-  primaryLabel: { color: '#fff' },
-  secondaryLabel: { color: '#208AEF' },
 });

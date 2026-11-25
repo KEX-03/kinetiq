@@ -1,4 +1,15 @@
 {
+  "common": {
+    "cancel": "Cancel"
+  },
+  "startup": {
+    "loading": "Getting things ready…",
+    "error": "Kinetiq couldn't open its database. Please restart the app."
+  },
+  "units": {
+    "kg": "kg",
+    "lb": "lb"
+  },
   "tabs": {
     "today": "Today",
     "history": "History",
@@ -16,7 +27,25 @@
     "title": "Progress"
   },
   "settings": {
-    "title": "Settings"
+    "weightUnit": "Weight unit",
+    "restTime": "Default rest time",
+    "restTimeHint": "Used by the rest timer after each set.",
+    "restDecrease": "Decrease by {{seconds}} seconds",
+    "restIncrease": "Increase by {{seconds}} seconds",
+    "theme": "Theme",
+    "themes": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "saveError": "Couldn't save setting",
+    "dev": {
+      "title": "Developer",
+      "reset": "Reset all data",
+      "resetTitle": "Reset all data?",
+      "resetMessage": "This deletes the entire local database and recreates it. Only shown in development builds.",
+      "resetConfirm": "Reset"
+    }
   },
   "workout": {
     "title": "Workout"

@@ -1,18 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet } from 'react-native';
 
 import { Card } from '@/components/card';
+import { Screen } from '@/components/screen';
 
 export default function ProgressScreen() {
   const { t } = useTranslation();
 
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.content}>
+    <Screen>
       <Card title={t('progress.title')} />
-    </ScrollView>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  content: { padding: 16, gap: 16 },
-});

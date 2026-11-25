@@ -1,8 +1,8 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet } from 'react-native';
 
 import { Card } from '@/components/card';
+import { Screen } from '@/components/screen';
 
 /** Active workout (in progress) or a past workout (finished). */
 export default function WorkoutScreen() {
@@ -10,12 +10,8 @@ export default function WorkoutScreen() {
   const { t } = useTranslation();
 
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.content}>
+    <Screen>
       <Card title={t('workout.title')} subtitle={`#${id}`} />
-    </ScrollView>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  content: { padding: 16, gap: 16 },
-});

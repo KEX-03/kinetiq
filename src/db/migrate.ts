@@ -1,64 +1,107 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
-
-import { seedDb } from './seed';
+import { db } from './client';
 
 /**
- * Ordered schema migrations. Never edit a shipped entry; append a new one.
- * The DB's `user_version` records how many have been applied.
+ * Ordered schema migrations. Never edit an entry that has shipped; append a new one.
+ * PRAGMA user_version stores how many have been applied.
+ *
+ * Every table has id (UUID), updated_at (ms) and deleted (0/1) so rows can sync later.
+ * Rows are never hard-deleted; set deleted = 1 instead.
  */
 const MIGRATIONS: string[] = [
+  // v1: initial schema
   `
   CREATE TABLE exercises (
-    id INTEGER PRIMARY KEY NOT NULL,
-    name TEXT NOT NULL UNIQUE,
-    muscle_group TEXT,
-    created_at INTEGER NOT NULL DEFAULT (unixepoch())
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    muscle_group TEXT NOT NULL,
+    equipment TEXT NOT NULL,
+    is_custom INTEGER NOT NULL DEFAULT 0,
+    updated_at INTEGER NOT NULL,
+    deleted INTEGER NOT NULL DEFAULT 0
   );
 
   CREATE TABLE workouts (
-    id INTEGER PRIMARY KEY NOT NULL,
-    started_at INTEGER NOT NULL DEFAULT (unixepoch()),
+    id TEXT PRIMARY KEY NOT NULL,
+    started_at INTEGER NOT NULL,
     finished_at INTEGER,
-    notes TEXT
+    updated_at INTEGER NOT NULL,
+    deleted INTEGER NOT NULL DEFAULT 0
   );
 
   CREATE TABLE sets (
-    id INTEGER PRIMARY KEY NOT NULL,
-    workout_id INTEGER NOT NULL REFERENCES workouts(id) ON DELETE CASCADE,
-    exercise_id INTEGER NOT NULL REFERENCES exercises(id),
-    position INTEGER NOT NULL,
-    weight_kg REAL,
-    reps INTEGER,
-    completed_at INTEGER
+    id TEXT PRIMARY KEY NOT NULL,
+    workout_id TEXT NOT NULL REFERENCES workouts(id),
+    exercise_id TEXT NOT NULL REFERENCES exercises(id),
+    weight_kg REAL NOT NULL,
+    reps INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    deleted INTEGER NOT NULL DEFAULT 0
   );
-  CREATE INDEX sets_workout_idx ON sets(workout_id);
-  CREATE INDEX sets_exercise_idx ON sets(exercise_id);
+  CREATE INDEX idx_sets_exercise_created ON sets(exercise_id, created_at);
+  CREATE INDEX idx_sets_workout ON sets(workout_id);
 
-  CREATE TABLE bodyweight (
-    id INTEGER PRIMARY KEY NOT NULL,
-    measured_at INTEGER NOT NULL DEFAULT (unixepoch()),
-    weight_kg REAL NOT NULL
+  CREATE TABLE body_weight (
+    id TEXT PRIMARY KEY NOT NULL,
+    date TEXT NOT NULL, -- local calendar day, YYYY-MM-DD
+    weight_kg REAL NOT NULL,
+    updated_at INTEGER NOT NULL,
+    deleted INTEGER NOT NULL DEFAULT 0
   );
 
   CREATE TABLE settings (
-    key TEXT PRIMARY KEY NOT NULL,
-    value TEXT NOT NULL
+    id TEXT PRIMARY KEY NOT NULL,
+    key TEXT NOT NULL UNIQUE,
+    value TEXT NOT NULL,
+    updated_at INTEGER NOT NULL,
+    deleted INTEGER NOT NULL DEFAULT 0
   );
   `,
 ];
 
-export async function migrateDbIfNeeded(db: SQLiteDatabase): Promise<void> {
+async function dropAllTables(): Promise<void> {
+  const tables = await db.getAllAsync<{ name: string }>(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'",
+  );
+  await db.execAsync('PRAGMA foreign_keys = OFF;');
+  for (const { name } of tables) {
+    // Table names can't be bound as parameters; these come from sqlite_master, not user input.
+    await db.execAsync(`DROP TABLE IF EXISTS "${name.replaceAll('"', '""')}"`);
+  }
+  await db.execAsync('PRAGMA user_version = 0;');
+}
+
+async function runMigrations(): Promise<void> {
   await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
 
   const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
   const current = row?.user_version ?? 0;
-  if (current >= MIGRATIONS.length) return;
 
-  await db.withExclusiveTransactionAsync(async (txn) => {
-    for (let v = current; v < MIGRATIONS.length; v++) {
-      await txn.execAsync(MIGRATIONS[v]);
-    }
-    if (current === 0) await seedDb(txn);
-    await txn.execAsync(`PRAGMA user_version = ${MIGRATIONS.length}`);
+  for (let version = current; version < MIGRATIONS.length; version++) {
+    await db.withExclusiveTransactionAsync(async (txn) => {
+      await txn.execAsync(MIGRATIONS[version]);
+      // PRAGMA values can't be bound as parameters; this is an integer from our own code.
+      await txn.execAsync(`PRAGMA user_version = ${version + 1}`);
+    });
+  }
+}
+
+let migration: Promise<void> | null = null;
+
+/** Brings the database schema up to date. Safe to call more than once. */
+export function migrate(): Promise<void> {
+  migration ??= runMigrations().catch((error: unknown) => {
+    migration = null; // allow a retry
+    throw error;
   });
+  return migration;
+}
+
+/** Development only: drops every table and rebuilds the schema from scratch. */
+export async function resetDatabase(): Promise<void> {
+  if (!__DEV__) throw new Error('resetDatabase is only available in development');
+
+  await dropAllTables();
+  migration = null;
+  await migrate();
 }
