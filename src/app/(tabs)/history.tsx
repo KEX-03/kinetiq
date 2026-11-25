@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ANDROID_TOP_EDGES } from '@/components/screen';
 import { useThemeColors } from '@/components/theme';
 import { useSettings } from '@/features/settings/settings-provider';
+import { RestTimerBar } from '@/features/timer/rest-timer-bar';
 import { listFinishedWorkouts, type WorkoutSummary } from '@/features/workouts/workout-store';
 import { formatClockTime, formatDate, minutesBetween } from '@/utils/time';
 import { displayWeight } from '@/utils/units';
@@ -52,6 +53,7 @@ export default function HistoryScreen() {
           )
         }
       />
+      <RestTimerBar />
     </SafeAreaView>
   );
 }

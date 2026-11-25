@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
 
+import { ANDROID_TOP_EDGES } from '@/components/screen';
 import { ExercisePicker } from '@/features/exercises/exercise-picker';
 import { addExerciseToWorkout } from '@/features/workouts/workout-store';
 
@@ -15,6 +16,8 @@ export default function AddExerciseScreen() {
   return (
     <ExercisePicker
       title={t('workout.addExercise')}
+      topEdges={ANDROID_TOP_EDGES}
+      elevated
       onSelect={async (exercise) => {
         if (adding) return;
         setAdding(true);

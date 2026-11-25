@@ -8,6 +8,8 @@ import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { NumberInput } from '@/components/number-input';
 import { useThemeColors } from '@/components/theme';
+import { useSettings } from '@/features/settings/settings-provider';
+import { useRestTimer } from '@/features/timer/rest-timer-provider';
 import { displayWeight, parseDecimal, toKg, weightStep, type WeightUnit } from '@/utils/units';
 
 import {
@@ -54,6 +56,8 @@ export function ExerciseBlock({
 }: ExerciseBlockProps) {
   const { t } = useTranslation();
   const colors = useThemeColors();
+  const { settings } = useSettings();
+  const { startRest } = useRestTimer();
   const unitLabel = t(`units.${unit}`);
   // Bodyweight exercises log reps only; weight is optional added load (e.g. weighted pull-ups).
   const isBodyweight = item.exercise.equipment === 'bodyweight';
@@ -115,6 +119,7 @@ export function ExerciseBlock({
     run(async () => {
       await logSet(workoutId, item.exercise.id, values.weightKg, values.reps);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      startRest(settings.restSeconds);
       // Next set: pre-fill with last time's matching set, or keep what was just logged.
       fill(item.previous[item.sets.length + 1]);
     });

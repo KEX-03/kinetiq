@@ -2,12 +2,13 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
 import { TextField } from '@/components/text-field';
 import { useThemeColors } from '@/components/theme';
+import { RestTimerBar } from '@/features/timer/rest-timer-bar';
 
 import {
   listExercises,
@@ -22,15 +23,28 @@ export type CreatePrefill = { name: string; muscleGroup: MuscleGroup | null };
 type ExercisePickerProps = {
   /** Optional heading above the search box (used when shown as a modal without a header). */
   title?: string;
+  /**
+   * Safe-area edges to pad at the top. Defaults to ['top'] for full screens (tabs). An iOS sheet
+   * already starts below the status bar, so modals pass ANDROID_TOP_EDGES instead.
+   */
+  topEdges?: Edge[];
+  /** Use raised-surface colors (lighter in dark mode), for when shown as a modal sheet. */
+  elevated?: boolean;
   onSelect: (exercise: Exercise) => void;
   /** Called when the user wants a custom exercise; prefilled from the current search and filter. */
   onCreate: (prefill: CreatePrefill) => void;
 };
 
 /** Searchable, filterable list of every exercise. Reloads whenever its screen regains focus. */
-export function ExercisePicker({ title, onSelect, onCreate }: ExercisePickerProps) {
+export function ExercisePicker({
+  title,
+  topEdges = ['top'],
+  elevated = false,
+  onSelect,
+  onCreate,
+}: ExercisePickerProps) {
   const { t } = useTranslation();
-  const colors = useThemeColors();
+  const colors = useThemeColors({ elevated });
   const [exercises, setExercises] = useState<Exercise[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -59,7 +73,7 @@ export function ExercisePicker({ title, onSelect, onCreate }: ExercisePickerProp
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView edges={['top']} style={styles.header}>
+      <SafeAreaView edges={topEdges} style={styles.header}>
         {title ? (
           <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>
             {title}
@@ -104,7 +118,9 @@ export function ExercisePicker({ title, onSelect, onCreate }: ExercisePickerProp
       <FlatList
         data={visible}
         keyExtractor={(exercise) => exercise.id}
-        renderItem={({ item }) => <ExerciseRow exercise={item} onPress={() => onSelect(item)} />}
+        renderItem={({ item }) => (
+          <ExerciseRow exercise={item} elevated={elevated} onPress={() => onSelect(item)} />
+        )}
         ItemSeparatorComponent={Separator}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
@@ -129,13 +145,16 @@ export function ExercisePicker({ title, onSelect, onCreate }: ExercisePickerProp
           )
         }
       />
+      <RestTimerBar />
     </View>
   );
 }
 
-function ExerciseRow({ exercise, onPress }: { exercise: Exercise; onPress: () => void }) {
+type ExerciseRowProps = { exercise: Exercise; elevated: boolean; onPress: () => void };
+
+function ExerciseRow({ exercise, elevated, onPress }: ExerciseRowProps) {
   const { t } = useTranslation();
-  const colors = useThemeColors();
+  const colors = useThemeColors({ elevated });
   const details = `${t(`muscleGroups.${exercise.muscleGroup}`)} · ${t(`equipment.${exercise.equipment}`)}`;
 
   return (

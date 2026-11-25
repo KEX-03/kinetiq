@@ -22,9 +22,20 @@ const dark: typeof light = {
   danger: '#FF453A',
 };
 
+/**
+ * Raised surfaces such as modal sheets. In dark mode iOS lightens these so they stand out
+ * from the black screen behind; in light mode the dimmed backdrop already does that.
+ */
+const darkElevated: typeof light = {
+  ...dark,
+  background: '#1C1C1E',
+  card: '#2C2C2E',
+};
+
 export type ThemeColors = typeof light;
 
 /** Colors for the current color scheme (follows the theme chosen in Settings). */
-export function useThemeColors(): ThemeColors {
-  return useColorScheme() === 'dark' ? dark : light;
+export function useThemeColors({ elevated = false }: { elevated?: boolean } = {}): ThemeColors {
+  if (useColorScheme() !== 'dark') return light;
+  return elevated ? darkElevated : dark;
 }

@@ -7,6 +7,7 @@ import { LoadingScreen } from '@/components/loading-screen';
 import { migrate } from '@/db/migrate';
 import { SettingsProvider } from '@/features/settings/settings-provider';
 import { applyTheme, loadSettings, type Settings } from '@/features/settings/settings-store';
+import { RestTimerProvider } from '@/features/timer/rest-timer-provider';
 import { ActiveWorkoutProvider } from '@/features/workouts/active-workout-provider';
 import { getActiveWorkout, type ActiveWorkout } from '@/features/workouts/workout-store';
 import '@/i18n';
@@ -51,7 +52,9 @@ export default function RootLayout() {
   return (
     <SettingsProvider initialSettings={startup.settings}>
       <ActiveWorkoutProvider initialActiveWorkout={startup.activeWorkout}>
-        <AppNavigator />
+        <RestTimerProvider>
+          <AppNavigator />
+        </RestTimerProvider>
       </ActiveWorkoutProvider>
     </SettingsProvider>
   );

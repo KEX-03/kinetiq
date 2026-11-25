@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
+import { RestTimerBar } from '@/features/timer/rest-timer-bar';
+
 import { useThemeColors } from './theme';
 
 /**
@@ -25,6 +27,7 @@ export function Screen({ children }: { children: ReactNode }) {
         contentContainerStyle={styles.content}>
         {children}
       </ScrollView>
+      <RestTimerBar />
     </SafeAreaView>
   );
 }

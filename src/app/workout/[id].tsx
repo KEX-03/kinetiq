@@ -7,6 +7,7 @@ import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { Screen } from '@/components/screen';
 import { useSettings } from '@/features/settings/settings-provider';
+import { useRestTimer } from '@/features/timer/rest-timer-provider';
 import { useActiveWorkout } from '@/features/workouts/active-workout-provider';
 import { ExerciseBlock } from '@/features/workouts/exercise-block';
 import {
@@ -23,6 +24,7 @@ export default function WorkoutScreen() {
   const { t } = useTranslation();
   const { settings } = useSettings();
   const { refreshActiveWorkout } = useActiveWorkout();
+  const { skipRest } = useRestTimer();
   const [workout, setWorkout] = useState<WorkoutDetail | null | undefined>(undefined);
   /** The one exercise card showing its entry area. Unset means "the newest exercise". */
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -55,12 +57,14 @@ export default function WorkoutScreen() {
     : (current.exercises.at(-1)?.id ?? null);
 
   async function finish() {
+    skipRest();
     await finishWorkout(current.id);
     await refreshActiveWorkout();
     await reload(); // stay here to show the finished summary
   }
 
   async function remove() {
+    if (isActive) skipRest();
     await deleteWorkout(current.id);
     await refreshActiveWorkout();
     router.back();
