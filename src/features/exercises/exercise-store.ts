@@ -27,7 +27,8 @@ export type Exercise = {
   isCustom: boolean;
 };
 
-type ExerciseRow = {
+/** Raw exercises row as returned by SQLite. */
+export type ExerciseRow = {
   id: string;
   name: string;
   muscle_group: MuscleGroup;
@@ -35,7 +36,7 @@ type ExerciseRow = {
   is_custom: number;
 };
 
-function toExercise(row: ExerciseRow): Exercise {
+export function toExercise(row: ExerciseRow): Exercise {
   return {
     id: row.id,
     name: row.name,

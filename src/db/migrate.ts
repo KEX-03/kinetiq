@@ -58,6 +58,20 @@ const MIGRATIONS: string[] = [
     deleted INTEGER NOT NULL DEFAULT 0
   );
   `,
+
+  // v2: exercises added to a workout (kept even before any set is logged, and ordered)
+  `
+  CREATE TABLE workout_exercises (
+    id TEXT PRIMARY KEY NOT NULL,
+    workout_id TEXT NOT NULL REFERENCES workouts(id),
+    exercise_id TEXT NOT NULL REFERENCES exercises(id),
+    position INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    deleted INTEGER NOT NULL DEFAULT 0
+  );
+  CREATE INDEX idx_workout_exercises_workout ON workout_exercises(workout_id, position);
+  CREATE INDEX idx_workouts_started ON workouts(started_at);
+  `,
 ];
 
 async function dropAllTables(): Promise<void> {

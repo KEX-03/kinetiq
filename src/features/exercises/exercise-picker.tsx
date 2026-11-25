@@ -20,13 +20,15 @@ import {
 export type CreatePrefill = { name: string; muscleGroup: MuscleGroup | null };
 
 type ExercisePickerProps = {
+  /** Optional heading above the search box (used when shown as a modal without a header). */
+  title?: string;
   onSelect: (exercise: Exercise) => void;
   /** Called when the user wants a custom exercise; prefilled from the current search and filter. */
   onCreate: (prefill: CreatePrefill) => void;
 };
 
 /** Searchable, filterable list of every exercise. Reloads whenever its screen regains focus. */
-export function ExercisePicker({ onSelect, onCreate }: ExercisePickerProps) {
+export function ExercisePicker({ title, onSelect, onCreate }: ExercisePickerProps) {
   const { t } = useTranslation();
   const colors = useThemeColors();
   const [exercises, setExercises] = useState<Exercise[] | null>(null);
@@ -58,6 +60,11 @@ export function ExercisePicker({ onSelect, onCreate }: ExercisePickerProps) {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SafeAreaView edges={['top']} style={styles.header}>
+        {title ? (
+          <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>
+            {title}
+          </Text>
+        ) : null}
         <View style={styles.searchRow}>
           <TextField
             containerStyle={styles.search}
@@ -158,7 +165,8 @@ function Separator() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12, gap: 12 },
+  header: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, gap: 12 },
+  title: { fontSize: 22, fontWeight: '700' },
   searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   search: { flex: 1 },
   chips: { gap: 8 },

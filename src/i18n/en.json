@@ -1,6 +1,8 @@
 {
   "common": {
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete"
   },
   "startup": {
     "loading": "Getting things ready…",
@@ -18,10 +20,21 @@
   },
   "today": {
     "title": "Today",
-    "startWorkout": "Start workout"
+    "subtitle": "Ready to train?",
+    "startWorkout": "Start workout",
+    "inProgress": "Workout in progress",
+    "resumeWorkout": "Resume workout"
   },
   "history": {
-    "title": "History"
+    "title": "History",
+    "empty": "No finished workouts yet. Your workouts will show up here.",
+    "loadError": "Couldn't load your workouts. Please restart the app.",
+    "timeAndDuration": "{{time}} · {{minutes}} min",
+    "exerciseCount_one": "{{count}} exercise",
+    "exerciseCount_other": "{{count}} exercises",
+    "setCount_one": "{{count}} set",
+    "setCount_other": "{{count}} sets",
+    "volume": "{{volume}} {{unit}}"
   },
   "progress": {
     "title": "Progress"
@@ -48,7 +61,51 @@
     }
   },
   "workout": {
-    "title": "Workout"
+    "title": "Workout",
+    "activeTitle": "Workout",
+    "inProgress": "In progress",
+    "startedAt": "Started at {{time}}",
+    "finishedSummary_one": "Started at {{time}} · {{minutes}} min · {{count}} set",
+    "finishedSummary_other": "Started at {{time}} · {{minutes}} min · {{count}} sets",
+    "notFound": "This workout no longer exists.",
+    "loadError": "Couldn't load this workout",
+    "saveError": "Couldn't save",
+    "addExercise": "Add exercise",
+    "finish": "Finish workout",
+    "finishTitle": "Finish workout?",
+    "finishMessage_one": "You logged {{count}} set.",
+    "finishMessage_other": "You logged {{count}} sets.",
+    "emptyTitle": "No sets logged",
+    "emptyMessage": "This workout has no sets. Discard it?",
+    "discard": "Discard workout",
+    "discardTitle": "Discard this workout?",
+    "deleteWorkout": "Delete workout",
+    "deleteTitle": "Delete this workout?",
+    "deleteMessage": "All sets in this workout will be removed from your history.",
+    "remove": "Remove",
+    "removeExercise": "Remove exercise",
+    "removeExerciseTitle": "Remove {{name}}?",
+    "removeExerciseMessage": "Its sets in this workout will be deleted.",
+    "colSet": "Set",
+    "colPrevious": "Previous",
+    "colWeightReps": "{{unit}} × reps",
+    "tapToEdit": "Tap to edit or delete this set",
+    "setN": "Set {{n}}",
+    "editingSet": "Editing set {{n}}",
+    "previousValue": "Previous: {{value}}",
+    "reps": "Reps",
+    "logSet": "Log set",
+    "logSetN": "Log set {{n}}",
+    "addedWeight": "Added {{unit}} (optional)",
+    "repsOnly_one": "{{count}} rep",
+    "repsOnly_other": "{{count}} reps",
+    "decreaseWeight": "Decrease weight by {{step}} {{unit}}",
+    "increaseWeight": "Increase weight by {{step}} {{unit}}",
+    "decreaseReps": "Decrease reps by 1",
+    "increaseReps": "Increase reps by 1",
+    "invalidWeight": "Enter a valid weight.",
+    "invalidReps": "Enter whole reps between 1 and {{max}}.",
+    "deleteSetTitle": "Delete set {{n}}?"
   },
   "exercise": {
     "title": "Exercise",

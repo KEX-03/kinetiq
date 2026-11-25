@@ -7,11 +7,13 @@ import { LoadingScreen } from '@/components/loading-screen';
 import { migrate } from '@/db/migrate';
 import { SettingsProvider } from '@/features/settings/settings-provider';
 import { applyTheme, loadSettings, type Settings } from '@/features/settings/settings-store';
+import { ActiveWorkoutProvider } from '@/features/workouts/active-workout-provider';
+import { getActiveWorkout, type ActiveWorkout } from '@/features/workouts/workout-store';
 import '@/i18n';
 
 type Startup =
   | { status: 'loading' }
-  | { status: 'ready'; settings: Settings }
+  | { status: 'ready'; settings: Settings; activeWorkout: ActiveWorkout | null }
   | { status: 'error'; message: string };
 
 export default function RootLayout() {
@@ -25,8 +27,9 @@ export default function RootLayout() {
       try {
         await migrate();
         const settings = await loadSettings();
+        const activeWorkout = await getActiveWorkout();
         applyTheme(settings.theme);
-        if (!cancelled) setStartup({ status: 'ready', settings });
+        if (!cancelled) setStartup({ status: 'ready', settings, activeWorkout });
       } catch (error) {
         if (!cancelled) setStartup({ status: 'error', message: String(error) });
       }
@@ -47,7 +50,9 @@ export default function RootLayout() {
 
   return (
     <SettingsProvider initialSettings={startup.settings}>
-      <AppNavigator />
+      <ActiveWorkoutProvider initialActiveWorkout={startup.activeWorkout}>
+        <AppNavigator />
+      </ActiveWorkoutProvider>
     </SettingsProvider>
   );
 }
@@ -61,6 +66,11 @@ function AppNavigator() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="workout/[id]" options={{ title: t('workout.title') }} />
+        <Stack.Screen
+          name="workout/add-exercise"
+          // The picker draws its own title; a native header would overlap its fixed search bar.
+          options={{ title: t('workout.addExercise'), presentation: 'modal', headerShown: false }}
+        />
         <Stack.Screen name="exercise/[id]" options={{ title: t('exercise.title') }} />
         <Stack.Screen
           name="exercise/new"

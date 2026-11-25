@@ -15,12 +15,14 @@ import {
   THEME_PREFERENCES,
   type Settings,
 } from '@/features/settings/settings-store';
+import { useActiveWorkout } from '@/features/workouts/active-workout-provider';
 import { formatDuration } from '@/utils/time';
 import { WEIGHT_UNITS } from '@/utils/units';
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
   const { settings, updateSetting, reloadSettings } = useSettings();
+  const { refreshActiveWorkout } = useActiveWorkout();
 
   async function change<K extends keyof Settings>(key: K, value: Settings[K]) {
     try {
@@ -45,6 +47,7 @@ export default function SettingsScreen() {
           try {
             await resetDatabase();
             await reloadSettings();
+            await refreshActiveWorkout();
           } catch (error) {
             Alert.alert(t('settings.saveError'), String(error));
           }
