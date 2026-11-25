@@ -1,0 +1,29 @@
+{
+  "tabs": {
+    "today": "Today",
+    "history": "History",
+    "progress": "Progress",
+    "settings": "Settings"
+  },
+  "today": {
+    "title": "Today",
+    "startWorkout": "Start workout"
+  },
+  "history": {
+    "title": "History"
+  },
+  "progress": {
+    "title": "Progress"
+  },
+  "settings": {
+    "title": "Settings"
+  },
+  "workout": {
+    "title": "Workout"
+  },
+  "exercise": {
+    "title": "Exercise",
+    "chart": "Progress",
+    "prs": "Personal records"
+  }
+}
