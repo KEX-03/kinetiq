@@ -191,6 +191,29 @@
       "saveError": "Couldn't save the exercise. Please try again."
     }
   },
+  "backup": {
+    "title": "Your data",
+    "hint": "Everything stays on this phone. Export a backup file to keep it safe or move it to a new phone.",
+    "export": "Export data",
+    "import": "Import data",
+    "shareTitle": "Save your Kinetiq backup",
+    "exportFailed": "Couldn't export your data",
+    "importFailed": "Couldn't import this file",
+    "confirmTitle": "Replace all data?",
+    "confirmMessage": "Backup from {{date}}:\n{{workouts}} workouts · {{sets}} sets · {{bodyWeights}} body weight entries · {{customExercises}} custom exercises\n\nEverything currently on this phone will be replaced. Export your current data first if you might need it.",
+    "replace": "Replace",
+    "restoredTitle": "Data imported",
+    "restoredMessage": "Your backup has been restored.",
+    "errors": {
+      "notJson": "This file isn't a Kinetiq backup (it isn't valid JSON).",
+      "notKinetiq": "This file isn't a Kinetiq backup.",
+      "newerVersion": "This backup was made with a newer version of Kinetiq. Update the app, then try again.",
+      "tooOld": "This backup is from a test version of Kinetiq and can't be imported.",
+      "tooLarge": "This file is too large to be a Kinetiq backup.",
+      "invalidData": "This backup is damaged or was edited, so it wasn't imported. Nothing was changed.",
+      "where": "Problem found in: {{detail}}"
+    }
+  },
   "timer": {
     "rest": "Rest",
     "remainingLabel": "Rest time remaining: {{time}}",

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
 
@@ -7,6 +8,14 @@ import { Screen } from '@/components/screen';
 import { SegmentedControl } from '@/components/segmented-control';
 import { Stepper } from '@/components/stepper';
 import { resetDatabase } from '@/db/migrate';
+import {
+  BackupError,
+  exportBackup,
+  pickBackup,
+  restoreBackup,
+  summarizeBackup,
+  type Backup,
+} from '@/features/backup/backup';
 import { useSettings } from '@/features/settings/settings-provider';
 import {
   REST_SECONDS_MAX,
@@ -17,7 +26,7 @@ import {
 } from '@/features/settings/settings-store';
 import { useRestTimer } from '@/features/timer/rest-timer-provider';
 import { useActiveWorkout } from '@/features/workouts/active-workout-provider';
-import { formatDuration } from '@/utils/time';
+import { formatClockTime, formatDate, formatDuration } from '@/utils/time';
 import { WEIGHT_UNITS } from '@/utils/units';
 
 export default function SettingsScreen() {
@@ -25,6 +34,7 @@ export default function SettingsScreen() {
   const { settings, updateSetting, reloadSettings } = useSettings();
   const { refreshActiveWorkout } = useActiveWorkout();
   const { skipRest } = useRestTimer();
+  const [busy, setBusy] = useState(false);
 
   async function change<K extends keyof Settings>(key: K, value: Settings[K]) {
     try {
@@ -37,6 +47,71 @@ export default function SettingsScreen() {
   function changeRest(delta: number) {
     const next = Math.min(REST_SECONDS_MAX, Math.max(REST_SECONDS_MIN, settings.restSeconds + delta));
     change('restSeconds', next);
+  }
+
+  async function exportData() {
+    setBusy(true);
+    try {
+      await exportBackup(t('backup.shareTitle'));
+    } catch (error) {
+      Alert.alert(t('backup.exportFailed'), String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function importData() {
+    setBusy(true);
+    let backup: Backup | null;
+    try {
+      backup = await pickBackup();
+    } catch (error) {
+      setBusy(false);
+      Alert.alert(t('backup.importFailed'), describeBackupError(error));
+      return;
+    }
+    setBusy(false);
+    if (!backup) return;
+
+    const chosen = backup;
+    const summary = summarizeBackup(chosen);
+    Alert.alert(
+      t('backup.confirmTitle'),
+      t('backup.confirmMessage', {
+        date: `${formatDate(summary.exportedAt)} ${formatClockTime(summary.exportedAt)}`,
+        workouts: summary.workouts,
+        sets: summary.sets,
+        bodyWeights: summary.bodyWeights,
+        customExercises: summary.customExercises,
+      }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('backup.replace'),
+          style: 'destructive',
+          onPress: async () => {
+            setBusy(true);
+            try {
+              skipRest();
+              await restoreBackup(chosen);
+              await reloadSettings();
+              await refreshActiveWorkout();
+              Alert.alert(t('backup.restoredTitle'), t('backup.restoredMessage'));
+            } catch (error) {
+              Alert.alert(t('backup.importFailed'), String(error));
+            } finally {
+              setBusy(false);
+            }
+          },
+        },
+      ],
+    );
+  }
+
+  function describeBackupError(error: unknown): string {
+    if (!(error instanceof BackupError)) return String(error);
+    const message = t(`backup.errors.${error.reason}`);
+    return error.detail ? `${message}\n\n${t('backup.errors.where', { detail: error.detail })}` : message;
   }
 
   function confirmReset() {
@@ -90,6 +165,11 @@ export default function SettingsScreen() {
           value={settings.theme}
           onChange={(theme) => change('theme', theme)}
         />
+      </Card>
+
+      <Card title={t('backup.title')} subtitle={t('backup.hint')}>
+        <Button title={t('backup.export')} variant="secondary" onPress={exportData} disabled={busy} />
+        <Button title={t('backup.import')} variant="secondary" onPress={importData} disabled={busy} />
       </Card>
 
       {__DEV__ ? (

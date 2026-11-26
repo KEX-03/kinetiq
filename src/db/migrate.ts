@@ -74,6 +74,9 @@ const MIGRATIONS: string[] = [
   `,
 ];
 
+/** Schema version after all migrations run (what PRAGMA user_version ends up as). */
+export const SCHEMA_VERSION = MIGRATIONS.length;
+
 async function dropAllTables(): Promise<void> {
   const tables = await db.getAllAsync<{ name: string }>(
     "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'",
