@@ -224,7 +224,14 @@
     "skip": "Skip",
     "notificationTitle": "Rest over",
     "notificationBody": "Time for your next set.",
-    "channelName": "Rest timer"
+    "channelName": "Rest timer",
+    "exactTitle": "Get rest alerts on time",
+    "exactMessage": "To save battery, Android can delay the \"Rest over\" alert by a few minutes. Allow Kinetiq to set alarms so it arrives exactly when your rest ends.",
+    "exactAllow": "Allow",
+    "exactLater": "Not now",
+    "exactCardTitle": "Rest alerts",
+    "exactCardHint": "Rest alerts may arrive late while the phone is locked. Allow alarms so they arrive on time.",
+    "exactCardButton": "Allow on-time alerts"
   },
   "muscleGroups": {
     "chest": "Chest",

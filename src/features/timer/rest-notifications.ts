@@ -1,10 +1,13 @@
+import Storage from 'expo-sqlite/kv-store';
 import * as Notifications from 'expo-notifications';
 import { AndroidImportance } from 'expo-notifications';
-import { Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 import i18n from '@/i18n';
 
 const CHANNEL_ID = 'rest-timer';
+/** Device-local flag so the exact-alarm explanation is shown only once. */
+const EXACT_ALARM_ASKED_KEY = 'exactAlarmAsked';
 
 /**
  * Show rest-timer alerts even while the app is open. The system sound is off in the
@@ -39,10 +42,49 @@ async function ensurePermission(): Promise<boolean> {
   return requested.granted;
 }
 
+/**
+ * Android 12+ delays scheduled notifications by minutes unless the user allows exact alarms
+ * (off by default on Android 14+). Returns true when the user could turn it on but hasn't.
+ * Always false on iOS, and where the permission isn't declared (e.g. Expo Go).
+ */
+export async function canImproveRestAlerts(): Promise<boolean> {
+  if (Platform.OS !== 'android') return false;
+  try {
+    const status = await Notifications.getExactAlarmPermissionsAsync();
+    return !status.granted && status.canAskAgain;
+  } catch {
+    return false;
+  }
+}
+
+/** Opens the system screen where the user allows exact alarms. Resolves when they return. */
+export async function allowExactRestAlerts(): Promise<void> {
+  try {
+    await Notifications.requestExactAlarmPermissionsAsync();
+  } catch (error) {
+    console.warn('Could not open exact alarm settings', error);
+  }
+}
+
+/** The first time a rest starts without exact alarms, explains why and offers to fix it. */
+async function explainExactAlarmsOnce(): Promise<void> {
+  if (!(await canImproveRestAlerts())) return;
+  try {
+    if (Storage.getItemSync(EXACT_ALARM_ASKED_KEY)) return;
+    Storage.setItemSync(EXACT_ALARM_ASKED_KEY, '1');
+  } catch {
+    return; // without the flag we'd ask every time, so don't ask at all
+  }
+  Alert.alert(i18n.t('timer.exactTitle'), i18n.t('timer.exactMessage'), [
+    { text: i18n.t('timer.exactLater'), style: 'cancel' },
+    { text: i18n.t('timer.exactAllow'), onPress: () => void allowExactRestAlerts() },
+  ]);
+}
+
 /** Schedules the "rest over" alert. Returns its id, or null if notifications aren't allowed. */
 export async function scheduleRestEnd(endsAt: number): Promise<string | null> {
   if (!(await ensurePermission())) return null;
-  return Notifications.scheduleNotificationAsync({
+  const id = await Notifications.scheduleNotificationAsync({
     content: {
       title: i18n.t('timer.notificationTitle'),
       body: i18n.t('timer.notificationBody'),
@@ -52,8 +94,12 @@ export async function scheduleRestEnd(endsAt: number): Promise<string | null> {
       type: Notifications.SchedulableTriggerInputTypes.DATE,
       date: endsAt,
       channelId: CHANNEL_ID,
+      // Alarm-clock alarms are never deferred for battery saving (falls back if not allowed).
+      delivery: 'alarmClock',
     },
   });
+  void explainExactAlarmsOnce();
+  return id;
 }
 
 export async function cancelRestEnd(notificationId: string | null | undefined): Promise<void> {

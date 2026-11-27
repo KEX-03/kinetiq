@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native';
+import { Alert, AppState } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
@@ -24,6 +25,7 @@ import {
   THEME_PREFERENCES,
   type Settings,
 } from '@/features/settings/settings-store';
+import { allowExactRestAlerts, canImproveRestAlerts } from '@/features/timer/rest-notifications';
 import { useRestTimer } from '@/features/timer/rest-timer-provider';
 import { useActiveWorkout } from '@/features/workouts/active-workout-provider';
 import { formatClockTime, formatDate, formatDuration } from '@/utils/time';
@@ -35,6 +37,24 @@ export default function SettingsScreen() {
   const { refreshActiveWorkout } = useActiveWorkout();
   const { skipRest } = useRestTimer();
   const [busy, setBusy] = useState(false);
+  const [alertsMayBeLate, setAlertsMayBeLate] = useState(false);
+
+  // Re-check when the screen is shown and when returning from the system settings screen.
+  const checkRestAlerts = useCallback(() => {
+    canImproveRestAlerts().then(setAlertsMayBeLate);
+  }, []);
+  useFocusEffect(checkRestAlerts);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') checkRestAlerts();
+    });
+    return () => subscription.remove();
+  }, [checkRestAlerts]);
+
+  async function allowRestAlerts() {
+    await allowExactRestAlerts();
+    checkRestAlerts();
+  }
 
   async function change<K extends keyof Settings>(key: K, value: Settings[K]) {
     try {
@@ -155,6 +175,12 @@ export default function SettingsScreen() {
           onIncrement={() => changeRest(REST_SECONDS_STEP)}
         />
       </Card>
+
+      {alertsMayBeLate ? (
+        <Card title={t('timer.exactCardTitle')} subtitle={t('timer.exactCardHint')}>
+          <Button title={t('timer.exactCardButton')} variant="secondary" onPress={allowRestAlerts} />
+        </Card>
+      ) : null}
 
       <Card title={t('settings.theme')}>
         <SegmentedControl
