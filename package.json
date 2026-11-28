@@ -1,6 +1,7 @@
 {
   "name": "kinetiq",
   "version": "1.0.0",
+  "description": "Free, open-source, offline-first gym app: workout logging, rest timer, PRs, progress charts and body weight tracking.",
   "main": "expo-router/entry",
   "dependencies": {
     "@expo/ui": "~58.0.30",
@@ -54,7 +55,6 @@
     "start": "expo start",
     "go": "expo start --go",
     "go:tunnel": "expo start --go --tunnel",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
